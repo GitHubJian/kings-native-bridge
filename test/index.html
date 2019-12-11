@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, width=device-width, maximum-scale=1, user-scalable=no"
+    />
+    <title>Test</title>
+  </head>
+
+  <body>
+    <div id="btn">点我</div>
+
+    <script>
+      var btn = document.getElementById('btn')
+
+      btn.onclick = function() {
+        window.WebViewJavascriptBridge.callHandler(
+          'postMessage',
+          {
+            param: '中文测试'
+          },
+          function(responseData) {
+            debugger
+          }
+        )
+      }
+
+      function connectWebViewJavascriptBridge(callback) {
+        if (window.WebViewJavascriptBridge) {
+          callback && callback(WebViewJavascriptBridge)
+        } else {
+          document.addEventListener(
+            'WebViewJavascriptBridgeReady',
+            function() {
+              callback && callback(WebViewJavascriptBridge)
+            },
+            false
+          )
+        }
+      }
+
+      connectWebViewJavascriptBridge(function(bridge) {
+        bridge.init(function(message, responseCallback) {
+          console.log('Javascript got a message: ', message)
+          debugger
+          var data = {
+            'Javascript Responds': '测试中文!'
+          }
+
+          if (responseCallback) {
+            console.log('JS responding with', data)
+            responseCallback(data)
+          }
+        })
+
+        bridge.registerHandler('message', function(data, responseCallback) {
+          debugger
+          if (responseCallback) {
+            var responseData = 'Javascript Says Right back aka!'
+            responseCallback(responseData)
+          }
+        })
+      })
+    </script>
+
+    <script src="../lib/index.js"></script>
+    <script src="./jsinvoker.js"></script>
+    <script src="./native-simulate.js"></script>
+  </body>
+</html>
